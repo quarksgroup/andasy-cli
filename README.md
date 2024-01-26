@@ -19,9 +19,7 @@ Before you can install `dropctl`, make sure you have the following prerequisites
 ### Debian/Ubuntu Linux:
 
 ```sh
-DROP_VERSION=v0.0.1
-ARCH=$(uname -m)
-curl -L -o droptcl https://github.com/quarksgroup/drop-cli/releases/download/${DROP_VERSION}/drop-cli-${DROP_VERSION}-linux-${ARCH}.tar.gz \
+curl -L https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-linux-amd64.tar.gz \
   | tar xz
 ```
 
@@ -36,10 +34,8 @@ sudo mv droptcl /usr/local/bin
 
 **Download the macOS (64-bit) executable**
 
-```
-DROP_VERSION=v0.0.1
-ARCH=$(uname -m)
-curl -L -o droptcl https://github.com/quarksgroup/drop-cli/releases/download/${DROP_VERSION}/drop-cli-${DROP_VERSION}-darwin-${ARCH}.tar.gz \
+```sh
+curl -L -o droptcl https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-darwin-amd64.tar.gz \
   | tar xz
 ```
 
@@ -55,7 +51,7 @@ sudo mv droptcl /usr/local/bin
 **Download the Windows (64-bit) executable using PowerShell**
 
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/quarksgroup/droptcl/releases/download/v0.0.1/droptcl-v0.0.1-windows-amd64.zip" -OutFile "droptcl.zip"
+Invoke-WebRequest -Uri "https://github.com/quarksgroup/droptcl/releases/download/v0.0.1/dropctl-windows-amd64.zip" -OutFile "droptcl.zip"
 ```
 
 **Extract the executable from the ZIP file**
