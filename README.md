@@ -35,7 +35,7 @@ sudo mv droptcl /usr/local/bin
 **Download the macOS (64-bit) executable**
 
 ```sh
-curl -L -o droptcl https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-darwin-amd64.tar.gz \
+curl -L https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-darwin-amd64.tar.gz \
   | tar xz
 ```
 
@@ -51,7 +51,7 @@ sudo mv droptcl /usr/local/bin
 **Download the Windows (64-bit) executable using PowerShell**
 
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/quarksgroup/droptcl/releases/download/v0.0.1/dropctl-windows-amd64.zip" -OutFile "droptcl.zip"
+Invoke-WebRequest -Uri "https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-windows-amd64.zip" -OutFile "droptcl.zip"
 ```
 
 **Extract the executable from the ZIP file**
