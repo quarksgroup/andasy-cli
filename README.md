@@ -16,6 +16,14 @@ Before you can install `dropctl`, make sure you have the following prerequisites
 
 - An active account on drop
 
+### Install script
+
+The easiest way to install `dropctl` is to run the following command in your terminal:
+
+```sh
+curl -sSL https://raw.githubusercontent.com/quarksgroup/drop-cli/main/install.sh | sh
+```
+
 ### Debian/Ubuntu Linux:
 
 ```sh
