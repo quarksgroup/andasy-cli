@@ -34,8 +34,8 @@ curl -L https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl
 Make the executable file executable and move it to a directory in your PATH (e.g., /usr/local/bin)
 
 ```sh
-chmod +x droptcl
-sudo mv droptcl /usr/local/bin
+chmod +x dropctl
+sudo mv dropctl /usr/local/bin
 ```
 
 ### MacOS:
@@ -50,8 +50,8 @@ curl -L https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl
 Make the executable file executable and move it to a directory in your PATH (e.g., /usr/local/bin)
 
 ```sh
-chmod +x droptcl
-sudo mv droptcl /usr/local/bin
+chmod +x dropctl
+sudo mv dropctl /usr/local/bin
 ```
 
 ### Windows:
@@ -59,13 +59,13 @@ sudo mv droptcl /usr/local/bin
 **Download the Windows (64-bit) executable using PowerShell**
 
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-windows-amd64.zip" -OutFile "droptcl.zip"
+Invoke-WebRequest -Uri "https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-windows-amd64.zip" -OutFile "dropctl.zip"
 ```
 
 **Extract the executable from the ZIP file**
 
 ```powershell
-Expand-Archive -Path "droptcl.zip" -DestinationPath "."
+Expand-Archive -Path "dropctl.zip" -DestinationPath "."
 ```
 
 Add the location of the executable to your system's PATH
