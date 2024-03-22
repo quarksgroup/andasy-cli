@@ -24,6 +24,12 @@ The easiest way to install `dropctl` is to run the following command in your ter
 curl -sSL https://raw.githubusercontent.com/quarksgroup/drop-cli/main/install.sh | sh
 ```
 
+## Install Manual
+
+* Visit the [GitHub releases page](https://github.com/quarksgroup/drop-cli/releases) for `drop-cli`.
+* Find the latest release tag (usually the one at the top) and note down its name (e.g., `v0.0.1`).
+* Replace `v0.0.1` in the following command with the latest release tag:
+
 ### Debian/Ubuntu Linux:
 
 ```sh
