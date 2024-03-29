@@ -1,10 +1,8 @@
 name: Update README
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   Update-README:
