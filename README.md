@@ -33,7 +33,7 @@ curl -sSL https://raw.githubusercontent.com/quarksgroup/drop-cli/main/install.sh
 ### Debian/Ubuntu Linux:
 
 ```sh
-curl -L https://github.com/quarksgroup/drop-cli/releases/download/v0.0.2/dropctl-linux-amd64.tar.gz \
+curl -L https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-linux-amd64.tar.gz \
   | tar xz
 ```
 
@@ -49,7 +49,7 @@ sudo mv dropctl /usr/local/bin
 **Download the macOS (64-bit) executable**
 
 ```sh
-curl -L https://github.com/quarksgroup/drop-cli/releases/download/v0.0.2/dropctl-darwin-amd64.tar.gz \
+curl -L https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-darwin-amd64.tar.gz \
   | tar xz
 ```
 
@@ -65,7 +65,7 @@ sudo mv dropctl /usr/local/bin
 **Download the Windows (64-bit) executable using PowerShell**
 
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/quarksgroup/drop-cli/releases/download/v0.0.2/dropctl-windows-amd64.zip" -OutFile "droptcl.zip"
+Invoke-WebRequest -Uri "https://github.com/quarksgroup/drop-cli/releases/download/v0.0.1/dropctl-windows-amd64.zip" -OutFile "droptcl.zip"
 ```
 
 **Extract the executable from the ZIP file**
