@@ -6,12 +6,11 @@ on:
       - update-readme-test
 
 jobs:
-  publish:
+  Update-README:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -35,9 +34,19 @@ jobs:
           git checkout -b update-readme
           git push origin update-readme
 
+  Create-PR:
+    runs-on: ubuntu-latest
+    needs: Update-README
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: update-readme
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create pull request
         run: |
           gh pr create --base main --head update-readme --title "Update README with latest release" --body "This PR updates the README with the latest release."
-          gh pr merge --auto --squash --delete-branch --rebase update-readme
+          gh pr merge update-readme --auto --squash --delete-branch
         env:
           GITHUB_TOKEN: ${{ github.token }}
