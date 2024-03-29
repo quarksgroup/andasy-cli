@@ -24,6 +24,12 @@ The easiest way to install `dropctl` is to run the following command in your ter
 curl -sSL https://raw.githubusercontent.com/quarksgroup/drop-cli/main/install.sh | sh
 ```
 
+## Install Manual
+
+* Visit the [GitHub releases page](https://github.com/quarksgroup/drop-cli/releases) for `drop-cli`.
+* Find the latest release tag (usually the one at the top) and note down its name (e.g., `v0.0.1`).
+* Replace `v0.0.1` in the following command with the latest release tag:
+
 ### Debian/Ubuntu Linux:
 
 ```sh
@@ -34,8 +40,8 @@ curl -L https://github.com/quarksgroup/drop-cli/releases/download//dropctl-linux
 Make the executable file executable and move it to a directory in your PATH (e.g., /usr/local/bin)
 
 ```sh
-chmod +x droptcl
-sudo mv droptcl /usr/local/bin
+chmod +x dropctl
+sudo mv dropctl /usr/local/bin
 ```
 
 ### MacOS:
@@ -50,8 +56,8 @@ curl -L https://github.com/quarksgroup/drop-cli/releases/download//dropctl-darwi
 Make the executable file executable and move it to a directory in your PATH (e.g., /usr/local/bin)
 
 ```sh
-chmod +x droptcl
-sudo mv droptcl /usr/local/bin
+chmod +x dropctl
+sudo mv dropctl /usr/local/bin
 ```
 
 ### Windows:
@@ -59,13 +65,13 @@ sudo mv droptcl /usr/local/bin
 **Download the Windows (64-bit) executable using PowerShell**
 
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/quarksgroup/drop-cli/releases/download//dropctl-windows-amd64.zip" -OutFile "droptcl.zip"
+Invoke-WebRequest -Uri "https://github.com/quarksgroup/drop-cli/releases/download//dropctl-windows-amd64.zip" -OutFile "dropctl.zip"
 ```
 
 **Extract the executable from the ZIP file**
 
 ```powershell
-Expand-Archive -Path "droptcl.zip" -DestinationPath "."
+Expand-Archive -Path "dropctl.zip" -DestinationPath "."
 ```
 
 Add the location of the executable to your system's PATH
