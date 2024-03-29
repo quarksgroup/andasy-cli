@@ -39,3 +39,5 @@ jobs:
         run: |
           gh pr create --base main --head update-readme --title "Update README with latest release" --body "This PR updates the README with the latest release."
           gh pr merge --auto --squash --delete-branch --rebase update-readme
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
