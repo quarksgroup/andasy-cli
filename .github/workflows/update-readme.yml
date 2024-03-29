@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: update-readme-test
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get current release
@@ -45,7 +45,7 @@ jobs:
 
       - name: Create pull request
         run: |
-          gh pr create --base main --head update-readme --title "Update README with latest release" --body "This PR updates the README with the latest release."
+          gh pr create --base update-readme-test --head update-readme --title "Update README with latest release" --body "This PR updates the README with the latest release."
           gh pr merge update-readme --auto --squash --delete-branch
         env:
           GITHUB_TOKEN: ${{ github.token }}
