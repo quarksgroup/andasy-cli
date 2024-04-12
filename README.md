@@ -1,6 +1,6 @@
 # Drop CLI
 
-Welcome to `dropctl` – the official command-line interface for drop Service. This versatile CLI tool is designed to simplify your interactions with Pass Cloud Service, Making it easier to deploy applications, manage authentication, handle your apps services, and manage organizations effortlessly. 
+Welcome to `dropctl` – the official command-line interface for drop Service. This versatile CLI tool is designed to simplify your interactions with Pass Cloud Service, Making it easier to deploy applications, manage authentication, handle your apps services, and manage organizations effortlessly.
 
 ## Introduction
 
@@ -119,7 +119,6 @@ For instance you can run below command to check the version you are running:
 dropct version
 ```
 
-
 If you see the version number, you have successfully installed dropctl!
 
 ## Usage
@@ -154,7 +153,6 @@ Logout your account from the current machine
  dropctl auth logout
 ```
 
-
 ### Apps
 
 The apps commands focus on managing your drop applications. Start with the CREATE command to register your application then you can list them or even restart your app once it is not reache able.
@@ -185,11 +183,10 @@ dropctl apps restart <app-name-here>
 
 ### Deploy
 
-Use the deploy command to deploy your applications to drop. Provide the path to your application directory or leave it empty to use the current path with `app-name flag`  leave it to use the your service configuration file to pick app-name but it order to deploy your application to drop,
-But before running deploy command you need alteast to have executed below command.
+Use the deploy command to deploy your applications to drop. Provide the path to your application directory or leave it empty to use the current path with `-a app-name flag`  , leave it to use your service configuration `.hcl` file to pick app-name but it in order for your application to be deployed drop, Below are steps needed before running deploy command so you need alteast to have executed below command.
 
-1. The app need to be aready created with `dropctl apps create app-name` command or through web.
-2. The `setup` command need to be executed at least once so the we can generate the config file and Dockerfile if it is not available.
+1. The app need's to be already created with `dropctl apps create app-name` command or through web.
+2. The `setup` command need to be executed at least once so we can generate the config file and Dockerfile if it is not available.
 
 #### The deployment guide line:
 
@@ -199,7 +196,7 @@ Run **setup** command to generate all required deployment requirements
  dropctl setup
 ```
 
-Run **secret** command to publish your secret environment variable to be associated with your application once is being deployed
+Run **secret** **(`s`)** command to publish your secret environment variable to be associated with your application once is being deployed
 
 ```
 dropctl secrets set FOO=bar BAZ=foobar -a app-name
@@ -235,7 +232,7 @@ Show organization by slug:
 dropctl orgs show <org-slug>
 ```
 
-### Database 
+### Database
 
 The database command is for mananging the databases as an apps service for instance like postgres.
 
