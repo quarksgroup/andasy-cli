@@ -47,11 +47,8 @@ fi
 # Download and install
 curl -L ${ASSET_URL} | tar xz
 chmod +x ./andasy
+sudo mv ./andasy /usr/bin
 
-echo
-echo "Download complete. Please move the binary to a directory in your PATH."
-echo "For example:"
-echo "  mv ./andasy /usr/local/bin"
 echo
 echo "You can now run:"
 echo "  andasy --help"
