@@ -20,7 +20,13 @@ Before you can install `andasy`, make sure you have the following prerequisites:
 The easiest way to install `andasy` is to run the following command in your terminal:
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/quarksgroup/andasy-cli/main/install.sh | sh
+curl -sSL https://andasy.io/install.sh | sh
+```
+
+Or on windows
+
+```powershell
+iwr https://andasy.io/install.ps1 | iex
 ```
 
 ## Manual Installation
