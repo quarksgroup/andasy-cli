@@ -37,7 +37,7 @@ iwr https://andasy.io/install.ps1 | iex
 ### Debian/Ubuntu Linux:
 
 ```sh
-curl -L https://github.com/quarksgroup/andasy-cli/releases/download/v0.1.8/andasy-linux-amd64.tar.gz \
+curl -L https://github.com/quarksgroup/andasy-cli/releases/download/v0.1.9/andasy-linux-amd64.tar.gz \
   | tar xz
 ```
 
@@ -53,7 +53,7 @@ sudo mv andasy /usr/local/bin
 **Download the macOS (64-bit) executable**
 
 ```sh
-curl -L https://github.com/quarksgroup/andasy-cli/releases/download/v0.1.8/andasy-darwin-amd64.tar.gz \
+curl -L https://github.com/quarksgroup/andasy-cli/releases/download/v0.1.9/andasy-darwin-amd64.tar.gz \
   | tar xz
 ```
 
@@ -69,7 +69,7 @@ sudo mv andasy /usr/local/bin
 **Download the Windows (64-bit) executable using PowerShell**
 
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/quarksgroup/andasy-cli/releases/download/v0.1.8/andasy-windows-amd64.zip" -OutFile "andasy.zip"
+Invoke-WebRequest -Uri "https://github.com/quarksgroup/andasy-cli/releases/download/v0.1.9/andasy-windows-amd64.zip" -OutFile "andasy.zip"
 ```
 
 **Extract the executable from the ZIP file**
