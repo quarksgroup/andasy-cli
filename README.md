@@ -41,11 +41,11 @@ curl -L https://github.com/quarksgroup/andasy-cli/releases/download/v0.2.1/andas
   | tar xz
 ```
 
-Make the executable file executable and move it to a directory in your PATH (e.g., /usr/local/bin)
+Make the executable file executable and move it to a directory in your PATH (e.g., /usr/bin)
 
 ```sh
 chmod +x andasy
-sudo mv andasy /usr/local/bin
+sudo mv andasy /usr/bin
 ```
 
 ### MacOS:
@@ -57,11 +57,11 @@ curl -L https://github.com/quarksgroup/andasy-cli/releases/download/v0.2.1/andas
   | tar xz
 ```
 
-Make the executable file executable and move it to a directory in your PATH (e.g., /usr/local/bin)
+Make the executable file executable and move it to a directory in your PATH (e.g., /usr/bin)
 
 ```sh
 chmod +x andasy
-sudo mv andasy /usr/local/bin
+sudo mv andasy /usr/bin
 ```
 
 ### Windows:
@@ -111,6 +111,7 @@ Here's a few commands to get you started:
   andasy deploy   For deploy your apps to andasy
   andasy machine  Managing your andasy machines
   andasy volume   For managing your andasy volumes
+  andasy update   For updating your cli version to latest version
 
 If you need help along the way:
   Use open https://github.com/quarksgroup/andasy-cli.git
