@@ -20,23 +20,38 @@ ARCH="$(uname -m)"
 
 # Detect architecture
 case $ARCH in
-x86_64) ARCH="amd64" ;;
-arm64) ARCH="arm64" ;;
-*)
-    echo "Unsupported architecture"
-    exit 1
-    ;;
+    x86_64)
+        ARCH="amd64"
+        ;;
+    arm64)
+        ARCH="arm64"
+        ;;
+    *)
+        echo "Unsupported architecture"
+        exit 1
+        ;;
 esac
 
 # Detect OS system type. (Windows not supported.)
-case $ARCH in
-Darwin) OSTYPE="darwin" ;;
-*) OSTYPE="linux" ;;
+OSTYPE="$(uname -s)"
+case $OSTYPE in
+    Darwin)
+        OSTYPE="darwin"
+        INSTALL_PATH="/usr/local/bin"
+        ;;
+    Linux)
+        OSTYPE="linux"
+        INSTALL_PATH="/usr/bin"
+        ;;
+    *)
+        echo "Unsupported operating system: $OSTYPE"
+        exit 1
+        ;;
 esac
 
 # Fetch download URL for the architecture from the GitHub API
-ASSET_URL=$(curl -s https://api.github.com/repos/$ANDASYCLI_REPO/releases/latest |
-    grep -o "https:\/\/github\.com\/$ANDASYCLI_REPO\/releases\/download\/.*${OSTYPE}-${ARCH}.*" |
+ASSET_URL=$(curl -s https://api.github.com/repos/$ANDASYCLI_REPO/releases/latest | \
+    grep -o "https:\/\/github\.com\/$ANDASYCLI_REPO\/releases\/download\/.*${OSTYPE}-${ARCH}.*" | \
     tr -d '\"')
 
 if [ -z "$ASSET_URL" ]; then
@@ -47,7 +62,9 @@ fi
 # Download and install
 curl -L ${ASSET_URL} | tar xz
 chmod +x ./andasy
-sudo mv ./andasy /usr/bin
+
+# Move to appropriate bin directory based on OS
+sudo mv ./andasy "$INSTALL_PATH"
 
 echo
 echo "You can now run:"
