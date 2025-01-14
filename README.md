@@ -57,11 +57,11 @@ curl -L https://github.com/quarksgroup/andasy-cli/releases/download/v0.2.15/anda
   | tar xz
 ```
 
-Make the executable file executable and move it to a directory in your PATH (e.g., /usr/bin)
+Make the executable file executable and move it to a directory in your PATH (e.g., /usr/local/bin)
 
 ```sh
 chmod +x andasy
-sudo mv andasy /usr/bin
+sudo mv andasy /usr/local/bin
 ```
 
 ### Windows:
