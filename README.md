@@ -1,4 +1,4 @@
-# andasy CLI
+# Andasy CLI
 
 Welcome to `andasy` – the official command-line interface for andasy Service. This versatile CLI tool is designed to simplify your interactions with Pass Cloud Service, Making it easier to deploy applications, manage authentication, handle your apps services, and manage organizations effortlessly.
 
@@ -26,7 +26,7 @@ curl -sSL https://andasy.io/install.sh | sh
 Or on windows
 
 ```powershell
-iwr https://andasy.io/install.ps1 | iex
+pwsh -Command "iwr https://andasy.io/install.ps1 -useb | iex"
 ```
 
 ## Manual Installation
