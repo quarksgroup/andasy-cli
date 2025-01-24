@@ -23,16 +23,26 @@ case $OSTYPE in
     Darwin)
         OSTYPE="darwin"
         INSTALL_PATH="$HOME/.andasy/bin"
-        TERM_CONFIG="$HOME/.zshrc"
         ;;
     Linux)
         OSTYPE="linux"
         INSTALL_PATH="$HOME/.andasy/bin"
-        TERM_CONFIG="$HOME/.bashrc"
         ;;
     *)
         echo "Unsupported operating system: $OSTYPE"
         exit 1
+        ;;
+esac
+
+case $SHELL in
+    */zsh)
+        TERM_CONFIG="$HOME/.zshrc"
+        ;;
+    */bash)
+        TERM_CONFIG="$HOME/.bashrc"
+        ;;
+    *)
+        TERM_CONFIG="$HOME/.profile"
         ;;
 esac
 
@@ -54,7 +64,9 @@ curl -fSL ${ASSET_URL} | tar -xz -C $INSTALL_PATH
 chmod +x $INSTALL_PATH/andasy
 
 # Add to PATH
-echo "export PATH=$INSTALL_PATH:\$PATH" >> $TERM_CONFIG
+if ! grep -q "$INSTALL_PATH" $TERM_CONFIG; then
+    echo "export PATH=$INSTALL_PATH:\$PATH" >> $TERM_CONFIG
+fi
 
 echo
 echo "Andasy CLI has been installed to $INSTALL_PATH"
