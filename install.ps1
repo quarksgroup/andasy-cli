@@ -14,13 +14,8 @@ switch ($Arch) {
 
 $InstallPath = "$env:USERPROFILE\.andasy\bin"
 $ExePath = "$InstallPath\andasy.exe"
-$TempDir = "$env:TEMP\andasy-update"
-$TempExePath = "$TempDir\andasy.exe"
-
-# Create temp directory if it doesn't exist
-if (!(Test-Path -Path $TempDir)) {
-    New-Item -ItemType Directory -Force -Path $TempDir | Out-Null
-}
+$NewExePath = "$InstallPath\andasy.new.exe"
+$BatchPath = "$InstallPath\andasy.bat"
 
 # Create installation directory if it doesn't exist
 if (!(Test-Path -Path $InstallPath)) {
@@ -52,78 +47,96 @@ try {
     $TempFile = Join-Path $env:TEMP "andasy-cli.zip"
     Invoke-WebRequest -Uri $AssetUrl -OutFile $TempFile
     
-    # Extract to temporary location first
     Write-Host "Extracting files..."
+    $TempDir = Join-Path $env:TEMP "andasy-update"
+    if (Test-Path $TempDir) {
+        Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    New-Item -ItemType Directory -Force -Path $TempDir | Out-Null
+    
     Expand-Archive -Path $TempFile -DestinationPath $TempDir -Force
     Remove-Item $TempFile
     
-    # Check if the binary exists and is currently in use
-    $fileInUse = $false
-    if (Test-Path $ExePath) {
-        try {
-            # Try to open the file exclusively to check if it's locked
-            $fileStream = [System.IO.File]::Open($ExePath, 'Open', 'Read', 'None')
-            $fileStream.Close()
-            $fileStream.Dispose()
-        } catch {
-            $fileInUse = $true
-        }
-    }
+    # First copy the new version to a .new.exe file
+    Copy-Item -Path "$TempDir\andasy.exe" -Destination $NewExePath -Force
     
-    if ($fileInUse) {
-        # Create the replacement script
-        $replacerScript = @"
-Start-Sleep -Seconds 1
-`$attempts = 0
-`$maxAttempts = 10
+    # Create a batch script that will handle the replacement
+    $batchContent = @"
+@echo off
+setlocal enabledelayedexpansion
 
-while (`$attempts -lt `$maxAttempts) {
-    try {
-        if (Test-Path "$ExePath") {
-            Remove-Item "$ExePath" -Force
-        }
-        Copy-Item "$TempExePath" "$ExePath" -Force
-        break
-    } catch {
-        `$attempts++
-        Start-Sleep -Seconds 1
-    }
-}
+REM Wait a moment for any running processes to exit
+timeout /t 1 /nobreak >nul
 
-if (`$attempts -lt `$maxAttempts) {
-    Write-Host "Andasy CLI has been successfully updated."
-} else {
-    Write-Host "Failed to update Andasy CLI after `$maxAttempts attempts."
-}
+REM Try to replace the file several times
+set max_attempts=20
+set attempt=0
 
-# Clean up temp directory
-Remove-Item -Path "$TempDir" -Recurse -Force -ErrorAction SilentlyContinue
+:retry
+set /a attempt+=1
+echo Attempt !attempt! of %max_attempts% to update...
+
+REM Try to delete the old executable
+del "$ExePath" 2>nul
+if exist "$ExePath" (
+    if !attempt! lss %max_attempts% (
+        REM Wait and retry
+        timeout /t 1 /nobreak >nul
+        goto retry
+    ) else (
+        echo Failed to update after %max_attempts% attempts.
+        goto cleanup
+    )
+)
+
+REM Now move the new file into place
+move "$NewExePath" "$ExePath" >nul
+if not exist "$ExePath" (
+    echo Error moving new executable into place.
+    goto cleanup
+)
+
+echo Update successful!
+
+:cleanup
+REM Remove the temporary batch file (itself)
+(goto) 2>nul & del "%~f0"
 "@
-        
-        $replacerPath = Join-Path $env:TEMP "andasy-replacer.ps1"
-        Set-Content -Path $replacerPath -Value $replacerScript
-        
-        Write-Host "The current andasy.exe is in use. Starting update process..."
-        
-        # Start the replacer script in a new process
-        Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$replacerPath`"" -WindowStyle Hidden
-        
-        Write-Host "Update process initiated. The CLI will be updated shortly."
-        Write-Host "Please restart any terminal sessions using andasy for the changes to take effect."
-    } else {
-        # Directly replace the file if it's not in use
-        if (Test-Path $ExePath) {
-            Remove-Item $ExePath -Force
-        }
-        Copy-Item $TempExePath $ExePath -Force
-        
-        # Clean up
-        Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
-        
-        $AndasyVersion = & "$ExePath" version
-        Write-Host "Andasy CLI has been updated successfully."
-        Write-Host "$AndasyVersion"
+    
+    $UpdaterBatchPath = "$InstallPath\update-andasy.bat"
+    Set-Content -Path $UpdaterBatchPath -Value $batchContent
+    
+    # Create a wrapper batch file to call the executable
+    if (!(Test-Path $BatchPath) -or (Get-Item $BatchPath).Length -eq 0) {
+        $wrapperContent = @"
+@echo off
+REM This is a wrapper script for andasy.exe that enables self-updating
+"%~dp0andasy.exe" %*
+"@
+        Set-Content -Path $BatchPath -Value $wrapperContent
     }
+
+    # Create a delayed execution of the updater batch
+    $RunnerPath = "$InstallPath\run-update.vbs"
+    $vbsContent = @"
+Set WshShell = CreateObject("WScript.Shell")
+WshShell.Run Chr(34) & "$UpdaterBatchPath" & Chr(34), 0, false
+Set WshShell = Nothing
+"@
+    Set-Content -Path $RunnerPath -Value $vbsContent
+    
+    Write-Host "Update package ready. Starting background updater..."
+    Start-Process -FilePath "wscript.exe" -ArgumentList "`"$RunnerPath`"" -WindowStyle Hidden
+    
+    Write-Host "Andasy update process initiated."
+    Write-Host "The CLI will be updated in the background."
+    Write-Host "Next time you run andasy, the new version will be used."
+    
+    # Display the current version (which will still be the old one)
+    $AndasyVersion = & "$ExePath" version
+    Write-Host "Current version: $AndasyVersion"
+    Write-Host "After update completes, please use 'andasy version' to confirm the new version."
+    
 } catch {
     Write-Error "Failed to download and install Andasy CLI: $_"
     exit 1
