@@ -1,6 +1,5 @@
 param(
-    [string]$CliRepo = "quarksgroup/andasy-cli",
-    [switch]$Update = $false
+    [string]$CliRepo = "quarksgroup/andasy-cli"
 )
 
 $Arch = $env:PROCESSOR_ARCHITECTURE
@@ -17,6 +16,8 @@ $InstallPath = "$env:USERPROFILE\.andasy\bin"
 $ExePath = "$InstallPath\andasy.exe"
 $NewExePath = "$InstallPath\andasy.new.exe"
 $BatchPath = "$InstallPath\andasy.bat"
+
+$isUpdate = Test-Path $ExePath
 
 # Create installation directory if it doesn't exist
 if (!(Test-Path -Path $InstallPath)) {
@@ -44,13 +45,13 @@ try {
         throw "No matching asset found for Windows $Arch"
     }
     
-    if ($Update) {
+    if ($isUpdate) {
         Write-Host "Downloading latest version..."
     }
     $TempFile = Join-Path $env:TEMP "andasy-cli.zip"
     Invoke-WebRequest -Uri $AssetUrl -OutFile $TempFile
     
-    if ($Update) {
+    if ($isUpdate) {
         Write-Host "Extracting files..."
     }
     $TempDir = Join-Path $env:TEMP "andasy-update"
@@ -124,7 +125,7 @@ Set WshShell = Nothing
 "@
     Set-Content -Path $RunnerPath -Value $vbsContent
     
-    if ($Update) {
+    if ($isUpdate) {
         Write-Host "Update downloaded and ready to apply."
         Write-Host "The update will be applied automatically when possible."
     }
@@ -132,7 +133,7 @@ Set WshShell = Nothing
     Start-Process -FilePath "wscript.exe" -ArgumentList "`"$RunnerPath`"" -WindowStyle Hidden
     
     # Display version info only during installation, not update
-    if (!$Update) {
+    if (!$isUpdate) {
         # For first-time install, we can directly use the exe since it's not in use
         if (!(Test-Path $ExePath)) {
             Move-Item -Path $NewExePath -Destination $ExePath -Force
