@@ -1,5 +1,6 @@
 param(
-    [string]$CliRepo = "quarksgroup/andasy-cli"
+    [string]$CliRepo = "quarksgroup/andasy-cli",
+    [switch]$Update = $false
 )
 
 $Arch = $env:PROCESSOR_ARCHITECTURE
@@ -43,11 +44,15 @@ try {
         throw "No matching asset found for Windows $Arch"
     }
     
-    Write-Host "Downloading latest version..."
+    if ($Update) {
+        Write-Host "Downloading latest version..."
+    }
     $TempFile = Join-Path $env:TEMP "andasy-cli.zip"
     Invoke-WebRequest -Uri $AssetUrl -OutFile $TempFile
     
-    Write-Host "Extracting files..."
+    if ($Update) {
+        Write-Host "Extracting files..."
+    }
     $TempDir = Join-Path $env:TEMP "andasy-update"
     if (Test-Path $TempDir) {
         Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
@@ -74,7 +79,7 @@ set attempt=0
 
 :retry
 set /a attempt+=1
-echo Attempt !attempt! of %max_attempts% to update...
+REM Silently attempt replacement
 
 REM Try to delete the old executable
 del "$ExePath" 2>nul
@@ -84,19 +89,13 @@ if exist "$ExePath" (
         timeout /t 1 /nobreak >nul
         goto retry
     ) else (
-        echo Failed to update after %max_attempts% attempts.
+        REM Failed but don't output anything
         goto cleanup
     )
 )
 
 REM Now move the new file into place
 move "$NewExePath" "$ExePath" >nul
-if not exist "$ExePath" (
-    echo Error moving new executable into place.
-    goto cleanup
-)
-
-echo Update successful!
 
 :cleanup
 REM Remove the temporary batch file (itself)
@@ -125,17 +124,25 @@ Set WshShell = Nothing
 "@
     Set-Content -Path $RunnerPath -Value $vbsContent
     
-    Write-Host "Update package ready. Starting background updater..."
+    if ($Update) {
+        Write-Host "Update downloaded and ready to apply."
+        Write-Host "The update will be applied automatically when possible."
+    }
+    
     Start-Process -FilePath "wscript.exe" -ArgumentList "`"$RunnerPath`"" -WindowStyle Hidden
     
-    Write-Host "Andasy update process initiated."
-    Write-Host "The CLI will be updated in the background."
-    Write-Host "Next time you run andasy, the new version will be used."
-    
-    # Display the current version (which will still be the old one)
-    $AndasyVersion = & "$ExePath" version
-    Write-Host "Current version: $AndasyVersion"
-    Write-Host "After update completes, please use 'andasy version' to confirm the new version."
+    # Display version info only during installation, not update
+    if (!$Update) {
+        # For first-time install, we can directly use the exe since it's not in use
+        if (!(Test-Path $ExePath)) {
+            Move-Item -Path $NewExePath -Destination $ExePath -Force
+        }
+        
+        $AndasyVersion = & "$ExePath" version
+        Write-Host "Andasy CLI has been installed to $InstallPath"
+        Write-Host "$AndasyVersion"
+        Write-Host "`nPlease restart your terminal to ensure PATH updates take effect."
+    }
     
 } catch {
     Write-Error "Failed to download and install Andasy CLI: $_"
