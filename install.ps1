@@ -40,34 +40,37 @@ try {
     $AssetUrl = $ReleaseInfo.assets |
         Where-Object { $_.name -match "windows-$Arch" } |
         Select-Object -ExpandProperty browser_download_url
-    
+
     if (!$AssetUrl) {
         throw "No matching asset found for Windows $Arch"
     }
-    
-    if ($isUpdate) {
-        Write-Host "Downloading latest version..."
-    }
+
+    Write-Host "Downloading latest version..."
     $TempFile = Join-Path $env:TEMP "andasy-cli.zip"
     Invoke-WebRequest -Uri $AssetUrl -OutFile $TempFile
-    
-    if ($isUpdate) {
-        Write-Host "Extracting files..."
-    }
+
+    Write-Host "Extracting files..."
     $TempDir = Join-Path $env:TEMP "andasy-update"
     if (Test-Path $TempDir) {
         Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
     New-Item -ItemType Directory -Force -Path $TempDir | Out-Null
-    
+
     Expand-Archive -Path $TempFile -DestinationPath $TempDir -Force
     Remove-Item $TempFile
-    
-    # First copy the new version to a .new.exe file
+
+    # Copy the new executable to the final directory
     Copy-Item -Path "$TempDir\andasy.exe" -Destination $NewExePath -Force
-    
-    # Create a batch script that will handle the replacement
-    $batchContent = @"
+
+    # --- Refactored Logic ---
+    # Now, handle the update or new installation based on $isUpdate
+    if ($isUpdate) {
+        # This is an update, so use the delayed replacement method
+        Write-Host "Update downloaded and ready to apply."
+        Write-Host "The update will be applied automatically when possible."
+
+        # Create a batch script that will handle the replacement
+        $batchContent = @"
 @echo off
 setlocal enabledelayedexpansion
 
@@ -102,49 +105,41 @@ move "$NewExePath" "$ExePath" >nul
 REM Remove the temporary batch file (itself)
 (goto) 2>nul & del "%~f0"
 "@
-    
-    $UpdaterBatchPath = "$InstallPath\update-andasy.bat"
-    Set-Content -Path $UpdaterBatchPath -Value $batchContent
-    
-    # Create a wrapper batch file to call the executable
-    if (!(Test-Path $BatchPath) -or (Get-Item $BatchPath).Length -eq 0) {
+        $UpdaterBatchPath = "$InstallPath\update-andasy.bat"
+        Set-Content -Path $UpdaterBatchPath -Value $batchContent
+
+        # Create a delayed execution of the updater batch
+        $RunnerPath = "$InstallPath\run-update.vbs"
+        $vbsContent = @"
+Set WshShell = CreateObject("WScript.Shell")
+WshShell.Run Chr(34) & "$UpdaterBatchPath" & Chr(34), 0, false
+Set WshShell = Nothing
+"@
+        Set-Content -Path $RunnerPath -Value $vbsContent
+
+        Start-Process -FilePath "wscript.exe" -ArgumentList "`"$RunnerPath`"" -WindowStyle Hidden
+
+    } else {
+        # This is a new installation, so we can directly rename the executable
+        Write-Host "Installing Andasy CLI..."
+
+        Move-Item -Path $NewExePath -Destination $ExePath -Force
+
+        # Create a wrapper batch file to call the executable
+        # This is done for both installs and updates
         $wrapperContent = @"
 @echo off
 REM This is a wrapper script for andasy.exe that enables self-updating
 "%~dp0andasy.exe" %*
 "@
         Set-Content -Path $BatchPath -Value $wrapperContent
-    }
 
-    # Create a delayed execution of the updater batch
-    $RunnerPath = "$InstallPath\run-update.vbs"
-    $vbsContent = @"
-Set WshShell = CreateObject("WScript.Shell")
-WshShell.Run Chr(34) & "$UpdaterBatchPath" & Chr(34), 0, false
-Set WshShell = Nothing
-"@
-    Set-Content -Path $RunnerPath -Value $vbsContent
-    
-    if ($isUpdate) {
-        Write-Host "Update downloaded and ready to apply."
-        Write-Host "The update will be applied automatically when possible."
-    }
-    
-    Start-Process -FilePath "wscript.exe" -ArgumentList "`"$RunnerPath`"" -WindowStyle Hidden
-    
-    # Display version info only during installation, not update
-    if (!$isUpdate) {
-        # For first-time install, we can directly use the exe since it's not in use
-        if (!(Test-Path $ExePath)) {
-            Move-Item -Path $NewExePath -Destination $ExePath -Force
-        }
-        
         $AndasyVersion = & "$ExePath" version
         Write-Host "Andasy CLI has been installed to $InstallPath"
         Write-Host "$AndasyVersion"
         Write-Host "`nPlease restart your terminal to ensure PATH updates take effect."
     }
-    
+
 } catch {
     Write-Error "Failed to download and install Andasy CLI: $_"
     exit 1
