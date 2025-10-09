@@ -131,9 +131,10 @@ REM This is a wrapper script for andasy.exe that enables self-updating
         Write-Host "Verifying installation..." -ForegroundColor Cyan
         try {
             $VersionOutput = & "$ExePath" version 2>&1
+            $VersionOutput = $VersionOutput -replace "^andasy ", ""
             Write-Host ""
             Write-Host "Installation successful!" -ForegroundColor Green
-            Write-Host "Version: $VersionOutput" -ForegroundColor Cyan
+            Write-Host "$VersionOutput" -ForegroundColor Cyan
         } catch {
             Write-Host "Warning: Installation completed but CLI verification failed" -ForegroundColor Yellow
         }
