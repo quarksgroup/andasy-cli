@@ -2,15 +2,19 @@ param(
     [string]$CliRepo = "quarksgroup/andasy-cli"
 )
 
+$ErrorActionPreference = "Stop"  # Exit on any error
+
 $Arch = $env:PROCESSOR_ARCHITECTURE
 switch ($Arch) {
     "AMD64" { $Arch = "amd64" }
     "ARM64" { $Arch = "arm64" }
     default {
-        Write-Error "Unsupported architecture: $Arch"
+        Write-Host "Error: Unsupported architecture: $Arch" -ForegroundColor Red
         exit 1
     }
 }
+
+Write-Host "Detecting system: Windows $Arch" -ForegroundColor Cyan
 
 $InstallPath = "$env:USERPROFILE\.andasy\bin"
 $ExePath = "$InstallPath\andasy.exe"
@@ -25,6 +29,7 @@ if (!(Test-Path -Path $InstallPath)) {
 }
 
 # Ensure installation directory is in PATH
+$PathUpdated = $false
 $CurrentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($CurrentPath -notlike "*$InstallPath*") {
     [Environment]::SetEnvironmentVariable(
@@ -32,24 +37,31 @@ if ($CurrentPath -notlike "*$InstallPath*") {
         "$CurrentPath;$InstallPath",
         "User"
     )
+    $PathUpdated = $true
+    
+    # Refresh PATH in current session for immediate access
+    $env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + 
+                [Environment]::GetEnvironmentVariable("Path", "User")
 }
 
 try {
     # Download the latest release
+    Write-Host "Downloading Andasy CLI..." -ForegroundColor Cyan
     $ReleaseInfo = Invoke-RestMethod -Uri "https://api.github.com/repos/$CliRepo/releases/latest"
     $AssetUrl = $ReleaseInfo.assets |
         Where-Object { $_.name -match "windows-$Arch" } |
         Select-Object -ExpandProperty browser_download_url
 
     if (!$AssetUrl) {
-        throw "No matching asset found for Windows $Arch"
+        Write-Host "Error: No matching asset found for Windows $Arch" -ForegroundColor Red
+        Write-Host "Please visit https://github.com/$CliRepo/releases for manual installation" -ForegroundColor Yellow
+        exit 1
     }
 
-    Write-Host "Downloading latest version..."
     $TempFile = Join-Path $env:TEMP "andasy-cli.zip"
     Invoke-WebRequest -Uri $AssetUrl -OutFile $TempFile
 
-    Write-Host "Extracting files..."
+    Write-Host "Installing to $InstallPath..." -ForegroundColor Cyan
     $TempDir = Join-Path $env:TEMP "andasy-update"
     if (Test-Path $TempDir) {
         Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
@@ -66,8 +78,8 @@ try {
     # Now, handle the update or new installation based on $isUpdate
     if ($isUpdate) {
         # This is an update, so use the delayed replacement method
-        Write-Host "Update downloaded and ready to apply."
-        Write-Host "The update will be applied automatically when possible."
+        Write-Host "Update downloaded and ready to apply." -ForegroundColor Cyan
+        Write-Host "The update will be applied automatically when possible." -ForegroundColor Gray
 
         # Create a batch script that will handle the replacement
         $batchContent = @"
@@ -121,8 +133,6 @@ Set WshShell = Nothing
 
     } else {
         # This is a new installation, so we can directly rename the executable
-        Write-Host "Installing Andasy CLI..."
-
         Move-Item -Path $NewExePath -Destination $ExePath -Force
 
         # Create a wrapper batch file to call the executable
@@ -134,13 +144,34 @@ REM This is a wrapper script for andasy.exe that enables self-updating
 "@
         Set-Content -Path $BatchPath -Value $wrapperContent
 
-        $AndasyVersion = & "$ExePath" version
-        Write-Host "Andasy CLI has been installed to $InstallPath"
-        Write-Host "$AndasyVersion"
-        Write-Host "`nPlease restart your terminal to ensure PATH updates take effect."
+        # Verify installation
+        Write-Host "Verifying installation..." -ForegroundColor Cyan
+        try {
+            $VersionOutput = & "$ExePath" version 2>&1
+            Write-Host ""
+            Write-Host "Installation successful!" -ForegroundColor Green
+            Write-Host "Version: $VersionOutput" -ForegroundColor Cyan
+        } catch {
+            Write-Host "Warning: Installation completed but CLI verification failed" -ForegroundColor Yellow
+        }
+
+        # Display PATH information
+        Write-Host ""
+        if ($PathUpdated) {
+            Write-Host "PATH updated successfully" -ForegroundColor Green
+            Write-Host "New PowerShell/CMD windows can use 'andasy' immediately" -ForegroundColor Gray
+            Write-Host "VS Code users: Please restart VS Code to access 'andasy' in integrated terminals" -ForegroundColor Yellow
+        } else {
+            Write-Host "PATH already configured" -ForegroundColor Green
+        }
+        
+        Write-Host ""
+        Write-Host "🚀 Get started with: andasy --help" -ForegroundColor Cyan
     }
 
 } catch {
-    Write-Error "Failed to download and install Andasy CLI: $_"
+    Write-Host ""
+    Write-Host "Error: Failed to download and install Andasy CLI" -ForegroundColor Red
+    Write-Host "$_" -ForegroundColor Red
     exit 1
 }

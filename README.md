@@ -7,7 +7,7 @@ Welcome to `andasy` – the official command-line interface for andasy Service. 
 andasy Service is a cutting-edge cloud platform that empowers developers to build, deploy, and scale applications with ease. with `andasy`,
 you can harness the full power of andasy.io service directly from your terminal. Whether you're a seasoned developer or just getting started, this CLI tool is here to streamline your workflow.
 
-## 📦 Installation
+## Installation
 
 Prerequisites
 
@@ -19,15 +19,27 @@ Before you can install `andasy`, make sure you have the following prerequisites:
 
 The easiest way to install `andasy` is to run the following command in your terminal:
 
+**Linux & macOS:**
 ```sh
 curl -sSL https://andasy.io/install.sh | sh
 ```
 
-Or on windows
-
+**Windows (PowerShell):**
 ```powershell
 pwsh -Command "iwr https://andasy.io/install.ps1 -useb | iex"
 ```
+
+**What the installer does:**
+- Automatically detects your OS and architecture
+- Downloads the latest release from GitHub
+- Installs to `~/.andasy/bin` (Linux/macOS) or `%USERPROFILE%\.andasy\bin` (Windows)
+- Updates your PATH automatically
+- Verifies installation success
+
+**Supported platforms:**
+- Linux: x86_64 (amd64), ARM64/aarch64
+- macOS: x86_64 (Intel), ARM64 (Apple Silicon)
+- Windows: x86_64 (amd64), ARM64
 
 ## Manual Installation
 
@@ -257,6 +269,56 @@ For more information on available commands and options, you can always refer to 
 andasy --help
 ```
 
+## Troubleshooting
+
+### Installation Issues
+
+**"Command not found" after installation:**
+
+**Linux/macOS:**
+- Run `source ~/.bashrc` (or `~/.zshrc` for zsh) to reload your shell configuration
+- Or open a new terminal window
+- Verify the installation path is in your PATH: `echo $PATH | grep .andasy`
+
+**Windows:**
+- **PowerShell/CMD:** Open a new terminal window. The PATH update persists automatically.
+- **VS Code Integrated Terminal:** Restart VS Code completely. The integrated terminal inherits environment from the parent VS Code process, so it needs a full restart to pick up PATH changes.
+- Verify the installation: `$env:Path -split ';' | Select-String andasy`
+
+**Grep warnings on Linux (legacy installations):**
+- This has been fixed in the latest installer script
+- Re-run the installation to update: `curl -sSL https://andasy.io/install.sh | sh`
+
+**Network/Download failures:**
+- Verify you can access GitHub: `curl -I https://api.github.com`
+- Check your firewall/proxy settings
+- For manual installation, visit: https://github.com/quarksgroup/andasy-cli/releases
+
+**Permission errors:**
+- The installer uses user-level directories and doesn't require admin/sudo
+- If you encounter permission errors, verify `~/.andasy/bin` (or `%USERPROFILE%\.andasy\bin`) is writable
+- On Windows, ensure you're not running PowerShell as Administrator (use normal user mode)
+
+### Runtime Issues
+
+**Authentication problems:**
+```sh
+andasy auth login
+```
+If web authentication fails, try interactive mode: `andasy auth login -i`
+
+**Update failures (Windows):**
+- Close all running instances of `andasy.exe`
+- Run the installer again to complete the update
+- The installer includes automatic retry logic for locked files
+
+**Fish shell users (Linux/macOS):**
+- The installer now supports fish shell automatically
+- If PATH is not updated, manually add to `~/.config/fish/config.fish`:
+  ```fish
+  set -gx PATH "$HOME/.andasy/bin" $PATH
+  ```
+
 ## Feedback and Contributions
 
 We welcome your feedback and contributions to andasy. If you encounter any issues or have suggestions for improvement, please open an issue on our GitHub repository.
@@ -264,5 +326,3 @@ We welcome your feedback and contributions to andasy. If you encounter any issue
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Happy Coding 💻
