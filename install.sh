@@ -1,6 +1,14 @@
 #!/bin/sh
 set -e  # Exit on any error
 
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
 CLI_REPO="quarksgroup/andasy-cli"
 ARCH="$(uname -m)"
 
@@ -13,7 +21,7 @@ case $ARCH in
         ARCH="arm64"
         ;;
     *)
-        echo "Error: Unsupported architecture: $ARCH"
+        printf "${RED}Error: Unsupported architecture: $ARCH${RESET}\n"
         exit 1
         ;;
 esac
@@ -30,7 +38,7 @@ case $OSTYPE in
         INSTALL_PATH="$HOME/.andasy/bin"
         ;;
     *)
-        echo "Error: Unsupported operating system: $OSTYPE"
+        printf "${RED}Error: Unsupported operating system: $OSTYPE${RESET}\n"
         exit 1
         ;;
 esac
@@ -58,33 +66,33 @@ case $SHELL in
         ;;
 esac
 
-echo "Detecting system: $OSTYPE $ARCH"
-echo "Downloading Andasy CLI..."
+printf "${CYAN}Detecting system: ${BOLD}$OSTYPE $ARCH${RESET}\n"
+printf "${CYAN}Downloading Andasy CLI...${RESET}\n"
 
 ASSET_URL=$(curl -fsSL https://api.github.com/repos/$CLI_REPO/releases/latest | \
     grep -o "https://github\.com/$CLI_REPO/releases/download/.*${OSTYPE}-${ARCH}.*" | \
     tr -d '"' | head -n 1)
 
 if [ -z "$ASSET_URL" ]; then
-    echo "Error: Could not find a binary for $OSTYPE $ARCH"
-    echo "Please visit https://github.com/$CLI_REPO/releases for manual installation"
+    printf "${RED}Error: Could not find a binary for $OSTYPE $ARCH${RESET}\n"
+    printf "Please visit https://github.com/$CLI_REPO/releases for manual installation\n"
     exit 1
 fi
 
 mkdir -p "$INSTALL_PATH"
 
-echo "Installing to $INSTALL_PATH..."
+printf "${CYAN}Installing to ${BOLD}$INSTALL_PATH${RESET}${CYAN}...${RESET}\n"
 if ! curl -fsSL "$ASSET_URL" | tar -xz -C "$INSTALL_PATH"; then
-    echo "Error: Failed to download or extract CLI binary"
+    printf "${RED}Error: Failed to download or extract CLI binary${RESET}\n"
     exit 1
 fi
 
 chmod +x "$INSTALL_PATH/andasy"
 
 # Verify installation
-echo "Verifying installation..."
+printf "${CYAN}Verifying installation...${RESET}\n"
 if ! "$INSTALL_PATH/andasy" version >/dev/null 2>&1; then
-    echo "Error: Installation succeeded but CLI is not functional"
+    printf "${RED}Error: Installation succeeded but CLI is not functional${RESET}\n"
     exit 1
 fi
 
@@ -111,23 +119,23 @@ if [ -n "$TERM_CONFIG" ]; then
 fi
 
 # Display success message
-echo ""
-echo "Installation successful!"
-echo "Version: $("$INSTALL_PATH/andasy" version)"
-echo ""
+printf "\n"
+printf "${GREEN}${BOLD}Installation successful!${RESET}\n"
+printf "${CYAN}Version: ${RESET}$("$INSTALL_PATH/andasy" version)\n"
+printf "\n"
 
 if [ $PATH_UPDATED -eq 1 ]; then
-    echo "PATH updated in: $TERM_CONFIG"
-    echo "Run: source $TERM_CONFIG"
-    echo "Or open a new terminal to use 'andasy' command"
+    printf "${GREEN}PATH updated in: ${BOLD}$TERM_CONFIG${RESET}\n"
+    printf "  ${CYAN}Run:${RESET} source $TERM_CONFIG\n"
+    printf "  ${CYAN}Or${RESET} open a new terminal to use 'andasy' command\n"
 else
     if [ -n "$TERM_CONFIG" ]; then
-        echo "PATH already configured in: $TERM_CONFIG"
+        printf "${GREEN}PATH already configured in: ${BOLD}$TERM_CONFIG${RESET}\n"
     else
-        echo "Warning: Could not detect shell configuration file"
-        echo "Add '$INSTALL_PATH' to your PATH manually"
+        printf "${YELLOW}Warning: Could not detect shell configuration file${RESET}\n"
+        printf "  Add '${BOLD}$INSTALL_PATH${RESET}' to your PATH manually\n"
     fi
 fi
 
-echo ""
-echo "🚀 Get started with: andasy --help"
+printf "\n"
+printf "${CYAN}Get started with: ${BOLD}andasy --help${RESET}\n"
