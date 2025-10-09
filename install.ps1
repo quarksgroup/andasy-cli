@@ -71,56 +71,43 @@ try {
     Expand-Archive -Path $TempFile -DestinationPath $TempDir -Force
     Remove-Item $TempFile
 
-    # Copy the new executable to the final directory
     Copy-Item -Path "$TempDir\andasy.exe" -Destination $NewExePath -Force
 
-    # --- Refactored Logic ---
-    # Now, handle the update or new installation based on $isUpdate
     if ($isUpdate) {
-        # This is an update, so use the delayed replacement method
         Write-Host "Update downloaded and ready to apply." -ForegroundColor Cyan
         Write-Host "The update will be applied automatically when possible." -ForegroundColor Gray
 
-        # Create a batch script that will handle the replacement
         $batchContent = @"
 @echo off
 setlocal enabledelayedexpansion
 
-REM Wait a moment for any running processes to exit
 timeout /t 1 /nobreak >nul
 
-REM Try to replace the file several times
 set max_attempts=20
 set attempt=0
 
 :retry
 set /a attempt+=1
-REM Silently attempt replacement
 
 REM Try to delete the old executable
 del "$ExePath" 2>nul
 if exist "$ExePath" (
     if !attempt! lss %max_attempts% (
-        REM Wait and retry
         timeout /t 1 /nobreak >nul
         goto retry
     ) else (
-        REM Failed but don't output anything
         goto cleanup
     )
 )
 
-REM Now move the new file into place
 move "$NewExePath" "$ExePath" >nul
 
 :cleanup
-REM Remove the temporary batch file (itself)
 (goto) 2>nul & del "%~f0"
 "@
         $UpdaterBatchPath = "$InstallPath\update-andasy.bat"
         Set-Content -Path $UpdaterBatchPath -Value $batchContent
 
-        # Create a delayed execution of the updater batch
         $RunnerPath = "$InstallPath\run-update.vbs"
         $vbsContent = @"
 Set WshShell = CreateObject("WScript.Shell")
@@ -132,11 +119,8 @@ Set WshShell = Nothing
         Start-Process -FilePath "wscript.exe" -ArgumentList "`"$RunnerPath`"" -WindowStyle Hidden
 
     } else {
-        # This is a new installation, so we can directly rename the executable
         Move-Item -Path $NewExePath -Destination $ExePath -Force
 
-        # Create a wrapper batch file to call the executable
-        # This is done for both installs and updates
         $wrapperContent = @"
 @echo off
 REM This is a wrapper script for andasy.exe that enables self-updating
@@ -144,7 +128,6 @@ REM This is a wrapper script for andasy.exe that enables self-updating
 "@
         Set-Content -Path $BatchPath -Value $wrapperContent
 
-        # Verify installation
         Write-Host "Verifying installation..." -ForegroundColor Cyan
         try {
             $VersionOutput = & "$ExePath" version 2>&1
@@ -155,7 +138,6 @@ REM This is a wrapper script for andasy.exe that enables self-updating
             Write-Host "Warning: Installation completed but CLI verification failed" -ForegroundColor Yellow
         }
 
-        # Display PATH information
         Write-Host ""
         if ($PathUpdated) {
             Write-Host "PATH updated successfully" -ForegroundColor Green

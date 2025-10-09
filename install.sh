@@ -35,7 +35,6 @@ case $OSTYPE in
         ;;
 esac
 
-# Detect shell configuration file with improved detection
 TERM_CONFIG=""
 case $SHELL in
     */zsh)
@@ -60,10 +59,8 @@ case $SHELL in
 esac
 
 echo "Detecting system: $OSTYPE $ARCH"
-echo "Downloading Andasy CLI from GitHub..."
+echo "Downloading Andasy CLI..."
 
-# Fetch download URL for the architecture from the GitHub API
-# Fixed: Removed unnecessary backslash escapes to eliminate grep warnings
 ASSET_URL=$(curl -fsSL https://api.github.com/repos/$CLI_REPO/releases/latest | \
     grep -o "https://github\.com/$CLI_REPO/releases/download/.*${OSTYPE}-${ARCH}.*" | \
     tr -d '"' | head -n 1)
@@ -74,10 +71,8 @@ if [ -z "$ASSET_URL" ]; then
     exit 1
 fi
 
-# Create bin directory if it doesn't exist
 mkdir -p "$INSTALL_PATH"
 
-# Download and install
 echo "Installing to $INSTALL_PATH..."
 if ! curl -fsSL "$ASSET_URL" | tar -xz -C "$INSTALL_PATH"; then
     echo "Error: Failed to download or extract CLI binary"
@@ -87,7 +82,7 @@ fi
 chmod +x "$INSTALL_PATH/andasy"
 
 # Verify installation
-echo "🔍 Verifying installation..."
+echo "Verifying installation..."
 if ! "$INSTALL_PATH/andasy" version >/dev/null 2>&1; then
     echo "Error: Installation succeeded but CLI is not functional"
     exit 1
@@ -96,7 +91,6 @@ fi
 # Add to PATH if not already present
 PATH_UPDATED=0
 if [ -n "$TERM_CONFIG" ]; then
-    # Create config file if it doesn't exist
     if [ ! -f "$TERM_CONFIG" ]; then
         mkdir -p "$(dirname "$TERM_CONFIG")"
         touch "$TERM_CONFIG"
