@@ -121,7 +121,7 @@ fi
 # Display success message
 printf "\n"
 printf "${GREEN}${BOLD}Installation successful!${RESET}\n"
-VERSION=$("$INSTALL_PATH/andasy" version | head -n 1 | sed 's/andasy //')
+VERSION=$("$INSTALL_PATH/andasy" version)
 printf "${CYAN}${VERSION}${RESET}\n"
 printf "\n"
 
